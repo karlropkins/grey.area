@@ -436,7 +436,7 @@ splat_data <- function (data = ".", overwrite = FALSE, pkg = ".",
     stop("can't find '", data, "': Need data to splat_data",
          call. = FALSE)
   data2 <- get(data)
-  ###################################
+  ####################################
   #could check class of data2?
   ####################################
   #add data to ~[pkg]/data
@@ -450,7 +450,13 @@ splat_data <- function (data = ".", overwrite = FALSE, pkg = ".",
   #could use
   ## usethis::use_data(example.data, pkg="just.testing")
   #but guessing I might want to change name of data?
+
   #make doc script
+  #################################################
+  #currently rebuilds scripts if you splat new data
+  #using overwrite=TRUE. Might want to keep that?
+  #if just updating data???
+  #################################################
   out <- c(
     "############################################",
     paste("#' @title ", data, sep = ""),
@@ -491,6 +497,9 @@ splat_data <- function (data = ".", overwrite = FALSE, pkg = ".",
                                      paste(data, ".R", sep="")))
   write_splat_content(destination, out)
 }
+
+
+
 
 
 #' @rdname packaging.tools
@@ -723,4 +732,47 @@ order_splat_description <- function(desc){
                    1:length(desc)))
   temp <- temp[!is.na(temp)]
   desc[, temp, drop=FALSE]
+}
+
+#not exporting/testing/thinking about this
+resplat_data <- function (data = ".", overwrite = TRUE, pkg = ".",
+                          ...){
+
+  #replace data without changing documentation
+
+  #check package and path...
+  #[pkg]/data/[fun].R
+  .pkg <- package_splat_source(pkg)
+  ############################
+  #tidy this later
+  ############################
+  #test for data....
+  test_splat_path(paste(data, ".rda", sep = ""),
+                  c(file.path(.pkg$path), "data"),
+                  overwrite = overwrite, ...)
+  #test for document...
+  ##test_splat_path(paste(data, ".R", sep = ""),
+  ##                c(file.path(.pkg$path), "r"),
+  ##                overwrite = overwrite, ...)
+  #check data is there, etc.
+  if(data==".") return(invisible(FALSE))
+  if(!exists(data))
+    stop("can't find '", data, "': Need data to splat_data",
+         call. = FALSE)
+  data2 <- get(data)
+  ####################################
+  #could check class of data2?
+  ####################################
+  #add data to ~[pkg]/data
+  data.path <- file.path(file.path(.pkg$path, "data"),
+                         paste(data, ".rda", sep = ""))
+  #there must be a nicer way than this...
+  lst <- list(data2)
+  names(lst) <- data
+  save(file = data.path, list=data, envir = list2env(lst))
+  ###################################
+  #could use
+  ## usethis::use_data(example.data, pkg="just.testing")
+  #but guessing I might want to change name of data?
+
 }

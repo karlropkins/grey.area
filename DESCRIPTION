@@ -1,12 +1,13 @@
 Package: grey.area
 Title: This is a bit of a grey area
-Version: 0.0.10
-Date: 2020-07-28
-Description: This is a bit of a grey area. This is an in-house R
-       package not intended for unlimited redistribution. Please
-       contact Karl Ropkins for details.
+Version: 0.0.11
+Date: 2020-10-08
+Description: This is a bit of a grey area. This is an
+      in-house R package not intended for unlimited
+      redistribution. Please contact Karl Ropkins for
+      details.
 Authors@R: person("Karl", "Ropkins", email =
-       "karl.ropkins@gmail.com", role = c("aut", "cre"))
+      "karl.ropkins@gmail.com", role = c("aut", "cre"))
 Depends: R (>= 3.5.1)
 License: GLP-3
 Encoding: UTF-8
