@@ -26,13 +26,24 @@
 #' @param bearing,distance (For \code{geoDestination}) the bearing
 #' (relative to North) and distance to move from the start point
 #' \code{lat}, \code{lon}.
+#' @param easting,northing (For \code{geoConvertBNG2LatLon})
+#' Easting and Northing coordinates.
+#' @param crs (For \code{geoConvertBNG2LatLon}) the
+#' coordinate reference system for supplied \code{easting}
+#' and \code{northing}, by default 27700, the EPSG code
+#' for British National Grid coordinates.
 #' @param ... Additional arguments, currently ignored.
 #' @author Karl Ropkins
 #' @keywords methods
-#' @note All functions currently require \code{lat} and \code{lon}
-#' inputs in conventional decimal format.
+#' @note All functions currently require or convert to
+#' \code{lat} and \code{lon} in WGS84 coordinates and
+#' conventional decimal format.
 #'
 #' \code{geoBearing} DETAILS NEEDED.
+#'
+#' \code{geoConvertBNG2LatLon} converts British National
+#' Grid (BNG) Easting/Northing coordinates to (WGS84)
+#' Latitude/Longitude coordinates.
 #'
 #' \code{geoDistance} uses the haversine formula to account to the
 #' Earth's surface curvature, and uses 6371 km as the radius of earth.
@@ -75,9 +86,9 @@
 #' #get the bearing point1 to point2, point2 to point2, etc.
 #' bear <- geoBearing(lat, lon)
 #' #reconstruct the journey from start point,
-#' #distances and bearings
+#' #using distances and bearings
 #' geoDestination(lat[1], lon[1], bear, dist)
-#' #(nearly...)
+#' #(very nearly...)
 
 #########################################
 #NOTES:
@@ -452,3 +463,42 @@ geoDestination <- function (lat, lon = NULL, bearing = NULL,
 
 
 
+
+
+#####################
+#####################
+##geoConvertBNG2LatLon
+#####################
+#####################
+
+#exported
+
+# at the moment, this needs sf, added to imports
+#that might change
+
+#kr v.0.0.2 2021/05/08
+
+#' @rdname geo.tools
+#' @export
+geoConvertBNG2LatLon <- function(east, north = NULL, ...,
+                                 crs=27700){
+
+  #to convert british national grid (BNG)
+  #to lat long (WGS84)
+
+  #using sf package
+  #might not stay with that...
+
+  #cheat so we can use geoframe
+  if(is.data.frame(east)){
+    names(east)[tolower(names(east))=="easting"] <- "lat"
+    names(east)[tolower(names(east))=="northing"] <- "lon"
+  }
+  ans <- geoFrame(lat = east, lon = north, ...)
+  ans <- as.data.frame(ans) #move this to geoFrame?
+  ans <- sf::st_as_sf(ans, coords = c("lat", "lon"),
+                      crs=crs)
+  out <- as.data.frame(sf::st_coordinates(sf::st_transform(ans, 4326)))
+  names(out) <- c("lon", "lat")
+  out
+}

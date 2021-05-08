@@ -7,6 +7,7 @@
 \alias{geoDistance}
 \alias{geoElevation}
 \alias{geoDestination}
+\alias{geoConvertBNG2LatLon}
 \title{grey.area geo tools}
 \usage{
 geoFrame(lat, lon = NULL, ..., pair.lat.lon = TRUE)
@@ -32,6 +33,8 @@ geoDestination(
   units = "m",
   ...
 )
+
+geoConvertBNG2LatLon(east, north = NULL, ..., crs = 27700)
 }
 \arguments{
 \item{lat, lon}{Latitudes and longitudes to be used in geographical
@@ -61,6 +64,14 @@ number of \code{lat, lon} per request.}
 \item{bearing, distance}{(For \code{geoDestination}) the bearing
 (relative to North) and distance to move from the start point
 \code{lat}, \code{lon}.}
+
+\item{crs}{(For \code{geoConvertBNG2LatLon}) the
+coordinate reference system for supplied \code{easting}
+and \code{northing}, by default 27700, the EPSG code
+for British National Grid coordinates.}
+
+\item{easting, northing}{(For \code{geoConvertBNG2LatLon})
+Easting and Northing coordinates.}
 }
 \value{
 \code{geoFrame} is data handler used by other geo...
@@ -94,10 +105,15 @@ Some functions for use with (latitude, longitude)
 coordinates.
 }
 \note{
-All functions currently require \code{lat} and \code{lon}
-inputs in conventional decimal format.
+All functions currently require or convert to
+\code{lat} and \code{lon} in WGS84 coordinates and
+conventional decimal format.
 
 \code{geoBearing} DETAILS NEEDED.
+
+\code{geoConvertBNG2LatLon} converts British National
+Grid (BNG) Easting/Northing coordinates to (WGS84)
+Latitude/Longitude coordinates.
 
 \code{geoDistance} uses the haversine formula to account to the
 Earth's surface curvature, and uses 6371 km as the radius of earth.
@@ -116,9 +132,9 @@ dist <- geoDistance(lat, lon)
 #get the bearing point1 to point2, point2 to point2, etc.
 bear <- geoBearing(lat, lon)
 #reconstruct the journey from start point,
-#distances and bearings
+#using distances and bearings
 geoDestination(lat[1], lon[1], bear, dist)
-#(nearly...)
+#(very nearly...)
 }
 \author{
 Karl Ropkins

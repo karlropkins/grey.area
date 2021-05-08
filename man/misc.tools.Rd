@@ -47,8 +47,8 @@ tidying
 the terms in the supplied vectors are equivalent. This
 is a little of a specialist function but if you ever
 have a case where e.g. you want to group journeys
-between locations need a-to-b and b-to-a to be merged
-as a single case journeys-between-a-and-b...
+between locations and need a-to-b and b-to-a to be
+merged as a single case journeys-between-a-and-b...
 
 \code{uncombine} extracts terms from a previous combined
 vector.
