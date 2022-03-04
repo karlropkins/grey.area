@@ -350,7 +350,7 @@ geoElevation <- function (lat, lon = NULL, units = "m", ...,
                  sc <- 1
 
 #note error handling for NA below
-#migth want to rethink or move out of function
+#might want to rethink or move out of function
 
             ans <- y * sc
             ifelse(is.na(ans), 0, ans)
