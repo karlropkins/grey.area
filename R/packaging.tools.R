@@ -24,6 +24,7 @@
 #' '1', '0.1' or '0.0.1' or 1, 2, or 3 from first, second or third
 #' level version increase.
 #' @param ... Other arguments passed on.
+#'
 
 #######################################
 #to do
