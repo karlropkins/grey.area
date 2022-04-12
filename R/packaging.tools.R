@@ -35,6 +35,17 @@
 #    all present and right order
 
 #####################################
+#to think about
+#####################################
+#think about save(..., compress='xz')
+#in splat_data and resplat_data
+#currently hard coded.
+#might want to move to args or
+#access via ...?
+
+
+
+#####################################
 #exported functions
 ######################################
 
@@ -405,7 +416,6 @@ splat_function <- function (fun = ".", overwrite = FALSE, pkg = ".",
 }
 
 
-
 #' @rdname packaging.tools
 #' @export
 splat_data <- function (data = ".", overwrite = FALSE, pkg = ".",
@@ -446,7 +456,8 @@ splat_data <- function (data = ".", overwrite = FALSE, pkg = ".",
   #there must be a nicer way than this...
   lst <- list(data2)
   names(lst) <- data
-  save(file = data.path, list=data, envir = list2env(lst))
+  save(file = data.path, list=data, envir = list2env(lst),
+       compress='xz') #see to think about
   ###################################
   #could use
   ## usethis::use_data(example.data, pkg="just.testing")
@@ -770,7 +781,8 @@ resplat_data <- function (data = ".", overwrite = TRUE, pkg = ".",
   #there must be a nicer way than this...
   lst <- list(data2)
   names(lst) <- data
-  save(file = data.path, list=data, envir = list2env(lst))
+  save(file = data.path, list=data, envir = list2env(lst),
+       compress='xz') #see to think about
   ###################################
   #could use
   ## usethis::use_data(example.data, pkg="just.testing")
