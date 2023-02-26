@@ -8,6 +8,8 @@
 \alias{geoElevation}
 \alias{geoDestination}
 \alias{geoConvertBNG2LatLon}
+\alias{geoConvertLatLonDeg2Dec}
+\alias{geoConvertLatLonDec2Deg}
 \title{grey.area geo tools}
 \usage{
 geoFrame(lat, lon = NULL, ..., pair.lat.lon = TRUE)
@@ -35,6 +37,8 @@ geoDestination(
 )
 
 geoConvertBNG2LatLon(east, north = NULL, ..., crs = 27700)
+
+geoConvertLatLonDec2Deg(lat, lon = NULL, ..., format = NULL, test = TRUE)
 }
 \arguments{
 \item{lat, lon}{Latitudes and longitudes to be used in geographical
@@ -70,6 +74,16 @@ coordinate reference system for supplied \code{easting}
 and \code{northing}, by default 27700, the EPSG code
 for British National Grid coordinates.}
 
+\item{format}{(For \code{geoConvertLatLonDev2Deg}) formatting for supplied
+\code{lat} and \code{lon} assumed to be supplied in degrees (deg/min/sec)
+format. The default \code{NULL} assumes \code{lat} and \code{lon} are not
+formatted.}
+
+\item{test}{(For \code{geoConvertLatLonDev2Deg}) test supplied \code{lat}
+and \code{lon} coordinates before converting. This generates a WARNING only
+if any look like a suspect case for conversion, e.g a \code{lat > 90},
+\code{lon > 180}, degrees > 60, etc...}
+
 \item{easting, northing}{(For \code{geoConvertBNG2LatLon})
 Easting and Northing coordinates.}
 }
@@ -99,6 +113,13 @@ but units can be modified as part of the call using, e.g.
 \code{geoDestination} returns a list of named lat/lon pairs for
 the path from the supplied lat/lon start point, assuming the
 journey described by the supplied bearings and distance.
+
+\code{geoConvertBNG2LatLon} converts British National
+Grid (BNG) Easting/Northing coordinates to (WGS84)
+Latitude/Longitude coordinates.
+
+\code{geoConvertLatLonDeg2Dem} converts Latitude/Longitude coordinates
+logged in degrees to decimal.
 }
 \description{
 Some functions for use with (latitude, longitude)
@@ -110,10 +131,6 @@ All functions currently require or convert to
 conventional decimal format.
 
 \code{geoBearing} DETAILS NEEDED.
-
-\code{geoConvertBNG2LatLon} converts British National
-Grid (BNG) Easting/Northing coordinates to (WGS84)
-Latitude/Longitude coordinates.
 
 \code{geoDistance} uses the haversine formula to account to the
 Earth's surface curvature, and uses 6371 km as the radius of earth.

@@ -1,17 +1,6 @@
 citHeader("To cite 'grey.area' package in publications use:")
 
-citEntry(entry="Manual",
-         title = "This is a bit of a grey area",
-         author = personList(as.person("Karl Ropkins")),
-         year = "2019",
-         note = paste("R package version ",
-                    packageDescription("grey.area",
-                                 fields = c("Version"))[1], sep=""),
-         textVersion = paste("Karl Ropkins (2019) ",
-                    "This is a bit of a grey area, ",
-                    "R package version ",
-                    packageDescription("grey.area",
-                         fields = c("Version"))[1],".", sep=""))
+citation(auto=meta)
 
 citFooter("Please cite both 'grey.area' and R ",
           "when using 'grey.area'.",

@@ -6,6 +6,7 @@
 #' coordinates.
 #' @name geo.tools
 #' @aliases geoFrame geoBearing geoDistance geoElevation geoDestination
+#' geoConvertBNG2LatLon geoConvertLatLonDeg2Dec
 #' @param lat,lon Latitudes and longitudes to be used in geographical
 #' calculations. Note: This can be supplied as two vectors or as a
 #' list or data.frame containing lat and lon vectors.
@@ -32,6 +33,14 @@
 #' coordinate reference system for supplied \code{easting}
 #' and \code{northing}, by default 27700, the EPSG code
 #' for British National Grid coordinates.
+#' @param format (For \code{geoConvertLatLonDev2Deg}) formatting for supplied
+#' \code{lat} and \code{lon} assumed to be supplied in degrees (deg/min/sec)
+#' format. The default \code{NULL} assumes \code{lat} and \code{lon} are not
+#' formatted.
+#' @param test (For \code{geoConvertLatLonDev2Deg}) test supplied \code{lat}
+#' and \code{lon} coordinates before converting. This generates a WARNING only
+#' if any look like a suspect case for conversion, e.g a \code{lat > 90},
+#' \code{lon > 180}, degrees > 60, etc...
 #' @param ... Additional arguments, currently ignored.
 #' @author Karl Ropkins
 #' @keywords methods
@@ -40,10 +49,6 @@
 #' conventional decimal format.
 #'
 #' \code{geoBearing} DETAILS NEEDED.
-#'
-#' \code{geoConvertBNG2LatLon} converts British National
-#' Grid (BNG) Easting/Northing coordinates to (WGS84)
-#' Latitude/Longitude coordinates.
 #'
 #' \code{geoDistance} uses the haversine formula to account to the
 #' Earth's surface curvature, and uses 6371 km as the radius of earth.
@@ -77,6 +82,13 @@
 #' \code{geoDestination} returns a list of named lat/lon pairs for
 #' the path from the supplied lat/lon start point, assuming the
 #' journey described by the supplied bearings and distance.
+#'
+#' \code{geoConvertBNG2LatLon} converts British National
+#' Grid (BNG) Easting/Northing coordinates to (WGS84)
+#' Latitude/Longitude coordinates.
+#'
+#' \code{geoConvertLatLonDeg2Dem} converts Latitude/Longitude coordinates
+#' logged in degrees to decimal.
 #' @examples
 #' #example 1
 #' lat <- 1:10
@@ -501,4 +513,118 @@ geoConvertBNG2LatLon <- function(east, north = NULL, ...,
   out <- as.data.frame(sf::st_coordinates(sf::st_transform(ans, 4326)))
   names(out) <- c("lon", "lat")
   out
+}
+
+
+
+#####################
+#####################
+##geoConvertLatLonDec2Deg
+#####################
+#####################
+
+#exported
+
+# at the moment, this needs sf, added to imports
+#that might change
+
+#kr v.0.0.4 2023/05/08
+
+#' @rdname geo.tools
+#' @export
+geoConvertLatLonDec2Deg <- function(lat, lon = NULL, ...,
+                                    format = NULL, test = TRUE){
+
+  #to convert lat/lon degrees to decimal
+  #had several goes at this but first time this made it to package...
+
+  #might not stay with that...
+  #NOTE by default geoframe assumes lat and lon are paired and
+  #   drops any extra/unpaired cases
+  #   not sure about NAs
+
+  ans <- geoFrame(lat = lat, lon = lon, ...)
+  if("lat" %in% names(ans)){
+    ans$lat <- geo_ConvertXDec2Deg(ans$lat, format, if(test) "as.lat" else "")
+  }
+  if("lon" %in% names(ans)){
+    ans$lon <- geo_ConvertXDec2Deg(ans$lon, format, if(test) "as.lon" else "")
+  }
+  ans
+}
+
+
+
+
+#############################
+#unexported
+#############################
+
+geo_ConvertXDec2Deg <- function(x, format, test=""){
+
+  #most of what I get is latlon_deg written as latlon_dec
+  #so 51.30 when I was expecting 51.50
+
+  #so no formatting, nothing as nice as 51'30''40.50'''
+
+  #lots of online methods
+  #still not sure of best way...
+
+  if(is.numeric(x)){
+    x <- as.character(x)
+  }
+
+  #############################
+  #might want an else if character???
+  #to account for interesting formatting
+  #############################
+
+  if(any(!grepl("[.]", x))){
+    x[!grepl("[.]", x)] <- paste(x[!grepl("[.]", x)], ".", sep="")
+  }
+  x <- paste(x, "000000", sep="") #make should we have enough to work with
+  if(is.null(format)){
+    temp <- strsplit(x, "[.]")
+    dgrs <- do.call(c, rbind(lapply(temp, function(x) x[1][1])))
+    neg <- dgrs < 0
+    dgrs <- abs(as.numeric(dgrs))
+    x <- do.call(c, rbind(lapply(temp, function(x) x[2][1])))
+
+    #no format guidance, split by position
+    mins <- as.numeric(substr(x, 1, 2))/60
+    secs <- gsub("[.]", "", substr(x, 3, nchar(x)))
+    secs <- paste(substr(secs, 1, 2), ".", substr(secs, 3, nchar(secs)),
+                  sep="")
+    secs <- (as.numeric(secs))/3600
+
+  } else {
+    #if there is formatting guidance
+    #split by format
+  }
+
+  if(test %in% c("as.lat", "as.lon")){
+    temp <- c(0,0,0)
+    if(test=="as.lat"){
+      temp[1] <- length(dgrs[dgrs>90])
+    }
+    if(test=="as.lon"){
+      temp[1] <- length(dgrs[dgrs>180])
+    }
+    temp[2] <- length(mins[mins >= 1])
+    temp[3] <- length(secs[secs >= 0.01])
+    if(sum(temp)>0){
+      #################
+      #how to display temp nicely
+      #temp[lat/lon, mins, secs] #how many bad...
+      warning("Deg2Dec: suspect conversions: ", test, "> ", temp,
+              call. = FALSE)
+    }
+  }
+
+  #rebuild as x_decimal
+  x <- dgrs + mins + secs
+  x[neg] <- -x[neg]
+
+  #output
+  x
 }

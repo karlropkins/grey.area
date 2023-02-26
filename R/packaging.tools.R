@@ -31,17 +31,18 @@
 #######################################
 # work to do on everything here...
 #######################################
+#need to update splat_citation based on CRAN guidance FEB 2023
+#    have a template in grey.area
 # at some stage need to recheck args
 #    all present and right order
+
 
 #####################################
 #to think about
 #####################################
 #think about save(..., compress='xz')
-#in splat_data and resplat_data
-#currently hard coded.
-#might want to move to args or
-#access via ...?
+#    think this is fun???
+
 
 
 
@@ -666,6 +667,7 @@ splat_version <- function (title = ".", version = ".", increase = ".",
   #I think assumes we are same directory as DESCRIPTION
   #might be a problem?
   write.dcf(desc, "DESCRIPTION")
+
 }
 
 
