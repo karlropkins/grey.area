@@ -28,6 +28,9 @@ peakInt(
 \method{print}{PeakInt}(x, ...)
 }
 \arguments{
+\item{x}{(for peakInt) numeric vector, typically a time-series of
+data; (for PeakInt methods) an object of class 'PeakInt'}
+
 \item{peak.wd.asym}{peak property, peak width asymmetry}
 
 \item{peak.ht.asym}{peak property, peak ht asymmetry}
@@ -40,8 +43,13 @@ peakInt(
 
 \item{...}{other arguments}
 
-\item{(for}{peakInt) x numeric vector, typically a time-series of
-data; (for PeakInt methods) an object of class 'PeakInt'}
+\item{report.lim}{(for plot.PeakInt) plot range limits}
+
+\item{peak.col}{(for plot.PeakInt) peak color}
+
+\item{peak.border}{(for plot.PeakInt) peak border}
+
+\item{data.col}{(for plot.PeakInt) data point color}
 }
 \description{
 peak integration

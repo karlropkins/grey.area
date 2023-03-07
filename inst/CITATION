@@ -1,6 +1,18 @@
 citHeader("To cite 'grey.area' package in publications use:")
 
-citation(auto=meta)
+year <- sub("-.*", "", meta$Date)
+version <- meta$Version
+
+bibentry(bibtype="Manual",
+         title = "grey.area: This is a bit of a grey area",
+         author = c(as.person("Karl Ropkins")),
+         year = year,
+         note = paste("R package version ",
+                    version, sep=""),
+         textVersion = paste("Karl Ropkins (", year, ") ",
+                    "grey.area: This is a bit of a grey area, ",
+                    "R package version ",
+                    version,".", sep=""))
 
 citFooter("Please cite both 'grey.area' and R ",
           "when using 'grey.area'.",

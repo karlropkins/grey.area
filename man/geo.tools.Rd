@@ -38,7 +38,7 @@ geoDestination(
 
 geoConvertBNG2LatLon(east, north = NULL, ..., crs = 27700)
 
-geoConvertLatLonDec2Deg(lat, lon = NULL, ..., format = NULL, test = TRUE)
+geoConvertLatLonDec2Deg(lat, lon = NULL, ..., format = NULL, test = FALSE)
 }
 \arguments{
 \item{lat, lon}{Latitudes and longitudes to be used in geographical
@@ -69,6 +69,9 @@ number of \code{lat, lon} per request.}
 (relative to North) and distance to move from the start point
 \code{lat}, \code{lon}.}
 
+\item{east, north}{(For \code{geoConvertBNG2LatLon})
+Easting and Northing coordinates, respectively.}
+
 \item{crs}{(For \code{geoConvertBNG2LatLon}) the
 coordinate reference system for supplied \code{easting}
 and \code{northing}, by default 27700, the EPSG code
@@ -83,9 +86,6 @@ formatted.}
 and \code{lon} coordinates before converting. This generates a WARNING only
 if any look like a suspect case for conversion, e.g a \code{lat > 90},
 \code{lon > 180}, degrees > 60, etc...}
-
-\item{easting, northing}{(For \code{geoConvertBNG2LatLon})
-Easting and Northing coordinates.}
 }
 \value{
 \code{geoFrame} is data handler used by other geo...

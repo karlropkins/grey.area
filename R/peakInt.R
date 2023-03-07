@@ -4,14 +4,33 @@
 
 #' @name peakInt
 #' @description peak integration
-#' @param (for peakInt) x numeric vector, typically a time-series of
+#' @param x (for peakInt) numeric vector, typically a time-series of
 #' data; (for PeakInt methods) an object of class 'PeakInt'
 #' @param peak.wd.asym peak property, peak width asymmetry
 #' @param peak.ht.asym peak property, peak ht asymmetry
 #' @param peak.cluster peak property, peak clustering
 #' @param peak.cutoff peak property, peak cutoff
 #' @param peak.cutoff.value peak property, peak cutoff value
+#' @param peak.col (for plot.PeakInt) peak color
+#' @param peak.border (for plot.PeakInt) peak border
+#' @param data.col (for plot.PeakInt) data point color
+#' @param report.lim (for plot.PeakInt) plot range limits
 #' @param ... other arguments
+
+
+##################
+#this needs tidying,
+#not sure where these are used
+##################
+
+#' @importFrom graphics axis legend lines locator polygon
+#' @importFrom methods is
+#' @importFrom stats lm median predict
+#' @importFrom utils flush.console
+#undefined globals
+#might not need all these anymore...
+utils::globalVariables(c("ref.hour.offset",
+                         "peak.marker", "x"))
 
 #peakInt
 ###########################

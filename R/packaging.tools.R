@@ -140,82 +140,55 @@ splat_description <- function (title = ".", description = ".",
 }
 
 
-
 #' @rdname packaging.tools
 #' @export
-splat_citation <- function (overwrite = FALSE, pkg = ".", ...){
-
-  #get package source,
-  #check for [pkg]/inst/CITATION...
+splat_citation <-
+  function (overwrite = FALSE, pkg = ".", ...)
+{
   .pkg <- package_splat_source(pkg)
-  ####################################
-  #think about pkg/.pkg
-  test_splat_path("CITATION", c(.pkg$path, "inst"),
-                  overwrite = overwrite, ...)
-
-  #get citation info
-  ##################################
-  #might want to tidy the pkg/.pkg
-  ##################################
-  pkg <- .pkg$package #pkg name from description
-  #if pkg name in title use as is else pkg: title
-  title <- if(length(grep(pkg, .pkg$title))>0) .pkg$title else
-    paste(pkg, ": ", .pkg$title, sep="")
-  #if date in decription use that else use this year
-  year <- if("date" %in% names(.pkg))
-    format(as.Date(.pkg$date), "%Y") else
-      format(Sys.Date(), "%Y")
-  #make manual and text authors records
+  test_splat_path("CITATION", c(.pkg$path, "inst"), overwrite = overwrite,
+                  ...)
+  pkg <- .pkg$package
+  title <- if (length(grep(pkg, .pkg$title)) > 0)
+    .pkg$title
+  else paste(pkg, ": ", .pkg$title, sep = "")
+  #year <- if ("date" %in% names(.pkg))
+  #  format(as.Date(.pkg$date), "%Y")
+  #else format(Sys.Date(), "%Y")
   authors <- paste(format(eval(parse(text = .pkg$`authors@r`)),
                           include = c("given", "family")))
-  txt.aut <- paste(authors, collapse=", ")
-  txt.aut <- paste("         textVersion = paste(\"", txt.aut, " (", year,
-                   ") \",", sep ="")
-  if(length(authors)>1)
-    txt.aut <- gsub(paste(", ", authors[length(authors)], sep=""),
-                    paste(" and ", authors[length(authors)], sep=""),
-                    txt.aut)
-  man.aut <- paste("as.person(\"", authors, "\")", sep="")
-  man.aut[1] <- paste("         author = personList(",
-                      man.aut[1], ",", sep="")
-  if(length(man.aut)>1)
+  txt.aut <- paste(authors, collapse = ", ")
+  txt.aut <- paste("         textVersion = paste(\"", txt.aut,
+                   " (\", year, \") \",", sep = "")
+  if (length(authors) > 1)
+    txt.aut <- gsub(paste(", ", authors[length(authors)],
+                          sep = ""), paste(" and ", authors[length(authors)],
+                                           sep = ""), txt.aut)
+  man.aut <- paste("as.person(\"", authors, "\")", sep = "")
+  man.aut[1] <- paste("         author = c(", man.aut[1],
+                      ",", sep = "")
+  if (length(man.aut) > 1)
     man.aut[2:length(man.aut)] <- paste("                             ",
-                                        man.aut[2:length(man.aut)], ",",
-                                        sep="")
+                                        man.aut[2:length(man.aut)], ",", sep = "")
   man.aut[length(man.aut)] <- gsub("[)],$", ")),", man.aut[length(man.aut)])
-  #make a citation template
-  # note no longer strictly template
-  # pre-formatting authors details...
-  out <- c(
-    "citHeader(\"To cite '[packname]' package in publications use:\")",
-    "",
-    "citEntry(entry=\"Manual\",",
-    "         title = \"[packtitle]\",",
-    man.aut,
-    "         year = \"[year]\",",
-    "         note = paste(\"R package version \",",
-    "                    packageDescription(\"[packname]\",",
-    "                                 fields = c(\"Version\"))[1], sep=\"\"),",
-    txt.aut,
-    "                    \"[packtitle], \",",
-    "                    \"R package version \",",
-    "                    packageDescription(\"[packname]\",",
-    "                         fields = c(\"Version\"))[1],\".\", sep=\"\"))",
-    "",
-    "citFooter(\"Please cite both '[packname]' and R \",",
-    "          \"when using '[packname]'.\",",
-    "          \"For R citation, see \", sQuote(\"citation()\"))"
-  )
-  #update template
+  out <- c("citHeader(\"To cite '[packname]' package in publications use:\")",
+           "",
+           "year <- sub(\"-.*\", \"\", meta$Date)",
+           "version <- meta$Version",
+
+           "", "bibentry(bibtype=\"Manual\",", "         title = \"[packname]: [packtitle]\",",
+           man.aut, "         year = year,", "         note = paste(\"R package version \",",
+           "                    version, sep=\"\"),",
+           txt.aut, "                    \"[packname]: [packtitle], \",", "                    \"R package version \",",
+           "                    version,\".\", sep=\"\"))",
+           "", "citFooter(\"Please cite both '[packname]' and R \",",
+           "          \"when using '[packname]'.\",", "          \"For R citation, see \", sQuote(\"citation()\"))")
   out <- gsub("[[]packname[]]", pkg, out)
   out <- gsub("[[]packtitle[]]", title, out)
-  out <- gsub("[[]year[]]", year, out)
-
-  #make CITATION file
+  #out <- gsub("[[]year[]]", year, out)
   write_splat_content(file.path(.pkg$path, "inst/CITATION"),
                       out)
 }
-
 
 
 #' @rdname packaging.tools

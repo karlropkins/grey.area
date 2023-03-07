@@ -27,8 +27,8 @@
 #' @param bearing,distance (For \code{geoDestination}) the bearing
 #' (relative to North) and distance to move from the start point
 #' \code{lat}, \code{lon}.
-#' @param easting,northing (For \code{geoConvertBNG2LatLon})
-#' Easting and Northing coordinates.
+#' @param east,north (For \code{geoConvertBNG2LatLon})
+#' Easting and Northing coordinates, respectively.
 #' @param crs (For \code{geoConvertBNG2LatLon}) the
 #' coordinate reference system for supplied \code{easting}
 #' and \code{northing}, by default 27700, the EPSG code
@@ -533,7 +533,7 @@ geoConvertBNG2LatLon <- function(east, north = NULL, ...,
 #' @rdname geo.tools
 #' @export
 geoConvertLatLonDec2Deg <- function(lat, lon = NULL, ...,
-                                    format = NULL, test = TRUE){
+                                    format = NULL, test = FALSE){
 
   #to convert lat/lon degrees to decimal
   #had several goes at this but first time this made it to package...
@@ -611,7 +611,7 @@ geo_ConvertXDec2Deg <- function(x, format, test=""){
       temp[1] <- length(dgrs[dgrs>180])
     }
     temp[2] <- length(mins[mins >= 1])
-    temp[3] <- length(secs[secs >= 0.01])
+    temp[3] <- length(secs[secs >= 0.016667])
     if(sum(temp)>0){
       #################
       #how to display temp nicely
@@ -621,7 +621,7 @@ geo_ConvertXDec2Deg <- function(x, format, test=""){
     }
   }
 
-  #rebuild as x_decimal
+  #rebuild x_degrees(mins and secs) as x_decimal
   x <- dgrs + mins + secs
   x[neg] <- -x[neg]
 
