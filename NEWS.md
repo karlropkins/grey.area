@@ -1,5 +1,8 @@
 # Version 0.0 - Release Notes
 
+* [0.0.18]
+    * added importUKNAMetals and importUKNAPAHs [2024-06-25] 
+
 * [0.0.17]
     * added news and rebuilt website [2023-03-07]
     * updated website [2023-03-07]

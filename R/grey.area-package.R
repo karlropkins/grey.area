@@ -21,6 +21,7 @@
 #' @section grey.area functions:
 #' Packaged Functions include: geo.tools, packaging.tools
 #'
-#' @docType package
+## #' @docType package
 #' @name grey.area
-NULL
+#' @keywords internal
+"_PACKAGE"

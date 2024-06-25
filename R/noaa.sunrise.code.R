@@ -35,7 +35,7 @@
 #' a range of parameters based on the relative position of the Sun and a
 #' receptor point of the Earth`s surface (see value below). The method is
 #' valid for dates between 1901 and 2099.\code{cutDaylight} is a cut-down
-#' version of the same method that was used in the code{openair} package.
+#' version of the same method that was used in the \code{openair} package.
 #'
 #' \code{hour.offset} uses \code{\link{ref.hour.offset}} as a look-up
 #' table to match supplied \code{local} terms and return

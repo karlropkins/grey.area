@@ -317,32 +317,34 @@ peak_assign <- function (data, x2, x3, y2, y3)
 #old peak plotting
 ############################
 
-plot.peak.int <-
-    function (peak.int, report.lim = c(1, -1), peak.col = "grey",
-              peak.border = NA, data.col = "black", ...)
-    {
-        ifelse(report.lim[1] < 1, a <- 1, a <- report.lim[1])
-        ifelse(report.lim[2] < 0, b <- nrow(peak.int$report), b <- report.lim[2])
-        ifelse(b > nrow(peak.int$report), b <- nrow(peak.int$report),
-               b <- b)
-        y1 <- peak.int$report$start[a]
-        y2 <- peak.int$report$end[b]
-        x <- y1:y2
-        y <- peak.int$output$data[y1:y2]
-        plot(x, y, type = "l", col = peak.col, ...)
-        if (length(peak.col) == 1) {
-            peak.col = rep(peak.col, b - a + 1)
-        }
-        for (i in a:b) {
-            x1 <- peak.int$report$start[i]
-            x2 <- peak.int$report$end[i]
-            polygon(c((x1:x2), (x2:x1)),
-                    c(peak.int$output[x1:x2,1],
-                      (peak.int$output[x2:x1,
-                    (ncol(peak.int$output) - 1)])), col = peak.col[i - a + 1], border = peak.border)
-        }
-        lines(x, y, col = data.col)
-    }
+
+
+#plot.peak.int <-
+#    function (peak.int, report.lim = c(1, -1), peak.col = "grey",
+#              peak.border = NA, data.col = "black", ...)
+#    {
+#        ifelse(report.lim[1] < 1, a <- 1, a <- report.lim[1])
+#        ifelse(report.lim[2] < 0, b <- nrow(peak.int$report), b <- report.lim[2])
+#        ifelse(b > nrow(peak.int$report), b <- nrow(peak.int$report),
+#               b <- b)
+#        y1 <- peak.int$report$start[a]
+#        y2 <- peak.int$report$end[b]
+#        x <- y1:y2
+#        y <- peak.int$output$data[y1:y2]
+#        plot(x, y, type = "l", col = peak.col, ...)
+#        if (length(peak.col) == 1) {
+#            peak.col = rep(peak.col, b - a + 1)
+#        }
+#        for (i in a:b) {
+#            x1 <- peak.int$report$start[i]
+#            x2 <- peak.int$report$end[i]
+#            polygon(c((x1:x2), (x2:x1)),
+#                    c(peak.int$output[x1:x2,1],
+#                      (peak.int$output[x2:x1,
+#                    (ncol(peak.int$output) - 1)])), col = peak.col[i - a + 1], border = peak.border)
+#        }
+#        lines(x, y, col = data.col)
+#    }
 
 
 view <- function (a = 2200, b = 2400, peak.int = x, ...)

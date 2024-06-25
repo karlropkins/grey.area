@@ -2,6 +2,7 @@
 % Please edit documentation in R/grey.area-package.R
 \docType{package}
 \name{grey.area}
+\alias{grey.area-package}
 \alias{grey.area}
 \title{grey.area: This is a bit of a grey area...}
 \description{
@@ -27,3 +28,17 @@ Please contact Karl Ropkins for details.
 Packaged Functions include: geo.tools, packaging.tools
 }
 
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/karlropkins/grey.area}
+  \item \url{https://karlropkins.github.io/grey.area/}
+  \item Report bugs at \url{https://github.com/karlropkins/grey.area/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Karl Ropkins \email{k.ropkins@its.leeds.ac.uk} (\href{https://orcid.org/0000-0002-0294-6997}{ORCID})
+
+}
+\keyword{internal}
