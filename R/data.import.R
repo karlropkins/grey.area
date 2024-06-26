@@ -90,9 +90,9 @@
 
 importUKNAMetals <- function(site, pollutant, year, ...){
   #wrapper for unexported getUKNANMetal
-  .sites <- lapply(sites, function(s){
-    .pols <- lapply(pols, function(p){
-      .years <- lapply(years, function(y){
+  .sites <- lapply(site, function(s){
+    .pols <- lapply(pol, function(p){
+      .years <- lapply(year, function(y){
         temp <- try(getUKNANMetal(s, p, y),
                     silent=TRUE)
         if(class(temp)[1]=="try-error") {
@@ -333,9 +333,9 @@ getUKNANMetal <- function(site, pollutant, year, ...){
 
 importUKNAPAHs <- function(site, pollutant, year, ...){
   #wrapper for getUKNANPAH
-  .sites <- lapply(sites, function(s){
-    .pols <- lapply(pols, function(p){
-      .years <- lapply(years, function(y){
+  .sites <- lapply(site, function(s){
+    .pols <- lapply(pol, function(p){
+      .years <- lapply(year, function(y){
         temp <- try(getUKNANPAH(s, p, y),
                     silent=TRUE)
         if(class(temp)[1]=="try-error") {
