@@ -2,30 +2,47 @@
 % Please edit documentation in R/data.import.R
 \name{data.import}
 \alias{data.import}
+\alias{importUKNAN}
 \alias{importUKNAMetals}
 \alias{importUKNAPAHs}
 \title{Data import functions}
 \usage{
-importUKNAMetals(site, pollutant, year, ...)
+importUKNAN(network_id, uka_id, pollutant_id, year, ..., silent = TRUE)
 
-importUKNAPAHs(site, pollutant, year, ...)
+importUKNAMetals(uka_id, pollutant_id, year, ...)
+
+importUKNAPAHs(uka_id, pollutant_id, year, ...)
 }
 \arguments{
-\item{site}{(character) The identifier code(s) for the site(s) the data
-is to be downloaded from.}
+\item{network_id}{(\code{importUKNAN} only; character) The identifier
+code for the network archive to request data from.}
 
-\item{pollutant}{(numeric) The pollutant identifier(s) of the pollutant(s)
-to download data for.}
+\item{uka_id}{(character) The 'UKA' identifier code(s) for the site(s) the
+data is to be downloaded from.}
+
+\item{pollutant_id}{(numeric) The pollutant identifier(s) of the
+pollutant(s) to download data for.}
 
 \item{year}{(numeric) The year(s) to download data for.}
 
 \item{...}{(other arguments) currently ignored.}
+
+\item{silent}{(\code{importUKNAN} only; logical) Return data silently? If
+\code{TRUE} (default) a \code{NULL} is returned without warning if the
+requested data is not available; if \code{FALSE}, options are suggested.}
 }
 \value{
 The import functions typically return the request data as a
 \code{data.frame} if data is available for requested site/pollutant/year
 combination. In some cases the \code{data.frame} may be set up
 for use with use with other packages.
+
+\code{importUKNAN}: Generic import function for data from DEFRA's
+Non-Automatic Networks. (In-development and largely untested;
+currently recommend using dedicated import if below or getting in
+contact.)
+
+See https://uk-air.defra.gov.uk/networks/network-info?view=non-automatic.
 
 \code{importUKNAMetals}: import function for metal data from the UK
 Non-automatic Heavy Metals Network.

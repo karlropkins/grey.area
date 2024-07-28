@@ -2,6 +2,7 @@
 
 * [0.0.18]
     * added importUKNAMetals and importUKNAPAHs [2024-06-25] 
+    * added importUKNAN [2024-07-28]  
 
 * [0.0.17]
     * added news and rebuilt website [2023-03-07]

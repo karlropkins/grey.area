@@ -7,5 +7,6 @@
 
 
 #globals
-utils::globalVariables(c("sites", "pols", "years"))
+utils::globalVariables(c("sites", "pols", "years",
+                         "Pollutant", "id"))
 

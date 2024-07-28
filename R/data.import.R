@@ -2,22 +2,34 @@
 #' @title Data import functions
 #######################################
 #' @name data.import
-#' @aliases importUKNAMetals importUKNAPAHs
+#' @aliases importUKNAN importUKNAMetals importUKNAPAHs
 
 #' @description Some functions to import data from held in on-line data
 #' archives.
 
-#' @param site (character) The identifier code(s) for the site(s) the data
-#' is to be downloaded from.
-#' @param pollutant (numeric) The pollutant identifier(s) of the pollutant(s)
-#' to download data for.
+#' @param network_id (\code{importUKNAN} only; character) The identifier
+#' code for the network archive to request data from.
+#' @param uka_id (character) The 'UKA' identifier code(s) for the site(s) the
+#' data is to be downloaded from.
+#' @param pollutant_id (numeric) The pollutant identifier(s) of the
+#' pollutant(s) to download data for.
 #' @param year (numeric) The year(s) to download data for.
 #' @param ... (other arguments) currently ignored.
+#' @param silent (\code{importUKNAN} only; logical) Return data silently? If
+#' \code{TRUE} (default) a \code{NULL} is returned without warning if the
+#' requested data is not available; if \code{FALSE}, options are suggested.
 
 #' @return The import functions typically return the request data as a
 #' \code{data.frame} if data is available for requested site/pollutant/year
 #' combination. In some cases the \code{data.frame} may be set up
 #' for use with use with other packages.
+#'
+#' \code{importUKNAN}: Generic import function for data from DEFRA's
+#' Non-Automatic Networks. (In-development and largely untested;
+#' currently recommend using dedicated import if below or getting in
+#' contact.)
+#'
+#' See https://uk-air.defra.gov.uk/networks/network-info?view=non-automatic.
 #'
 #' \code{importUKNAMetals}: import function for metal data from the UK
 #' Non-automatic Heavy Metals Network.
@@ -32,6 +44,7 @@
 #'
 #' see https://uk-air.defra.gov.uk/networks/network-info?view=pah for details
 #' and source information.
+
 
 ##############################
 # to think about
@@ -61,6 +74,286 @@
 #'
 
 
+###############################################
+# importUKNAN
+###############################################
+
+#' @rdname data.import
+#' @export
+
+# generic non-automatic network import function
+
+# tested for...
+############################
+
+# will data.table speed things up ???
+#     in importUKNAN....
+#         test replacing do.call(rbind, list) with data.table:::rbind.list(list)
+
+# issues identified
+############################
+
+# using archive report checking is slowing stuff down
+#    using importUKNAN("metals", ...) is 25% slower than importUKNAMetals(...)
+# "https://uk-air.defra.gov.uk/data/download-non-auto-data?uka_id=[SITE]&network=[NET]&year=[YEAR]&pollutant=[POL]"
+# also tried...
+#"https://uk-air.defra.gov.uk/data/non-auto-data?uka_id=UKA00211&network=nahc&s=View+Site"
+# previously used because accurate data file, faster/more direct... no web scrap needed...!
+#    but it seems to return a default data set if you requested one that does not exist...
+#    without an obvious way to test...
+#         some archive identify the returned set by adding 'selected' to item in the
+#         drop-down list of valid options BUT not all do this...
+#    also this return a comma-delimited which needs careful handling because some
+#    pollutants have commas in names, e.g. 1,3-butadiene...
+# currently checking webpage html for year/site/pollutant lists for valid options
+#         (basically reading the drop-down lists of options and values...)
+#         (year, site [name and uka_ code] and pollutant [name and pollutant_id code])
+#               (NB: NOT sure pollutant_id's are consistent across archives...)
+#    also checking output table to make sure pollution is the requested one...
+#    might need sensible start and end date values.
+#          (requested year plus maybe one start overlapping year before and
+#           and one end year overlapping year after...)
+
+
+# this does not work for NAHC network...
+#get error for...
+# a <- sneak_import("nahc", "UKA00518", "995", "2016", silent=F);a
+#     looks like it can't find the pol_ids
+#         guessing benzene = 995 because it is on the figure labels...
+#         some sites only have benzene
+#         might have to find one that has 1,3-... and find code...
+#     could modify importUKNAN ???
+#         if you send it the valid pol_id list it does not looks for it
+#             that gets you past error
+#         could also extend this to other valid lists..?
+#             that might spped things up a little ???
+
+# to think about
+###############################
+
+# move work ga_UKNAN_check into importUKNAN function
+#      (maybe???)
+#      any time saving/advantage there ???
+
+# make look-up tables for networks,
+#      maybe as part of replacements for the the other import functions
+#           that could give us an option to make better look-up tables???
+
+
+
+
+
+
+#example
+################################
+
+#pols <- c("1032", "1033", "1034", "1055",
+#          "262", "356", "263", "1035", "1036", "1378", "1038", "264")
+#yrs <- 2016:2017
+#importUKNAN("metals", "uka00212", pols, yrs)
+#importUKNAMetals("uka00212", pols, yrs)
+
+
+
+importUKNAN <- function(network_id, uka_id, pollutant_id, year,
+                        ..., silent = TRUE){
+
+  .ref0 <- "https://uk-air.defra.gov.uk/data/non-auto-data?uka_id=[SITE]&view=data&network=[NET]&year=[YEAR]&pollutant=[POL]#"
+
+  #only currently letting you have one network at time
+  if(length(network_id)!=1){
+    stop("IMPORT> sorry only one network at a time!",
+         call. = FALSE)
+  }
+  .ref0 <- gsub("[[]NET[]]", network_id, .ref0)
+
+  #build request matrix
+  .rqts <- expand.grid(uka_id, year, pollutant_id)
+  #print(.rqts)
+
+  .ans <- lapply(1:nrow(.rqts), function(.r){
+
+    #1 or more site, pollutant and year
+    #only tested for pollutant and year so far...
+    .ref <- gsub("[[]SITE[]]", .rqts[.r,1], .ref0)
+    .ref <- gsub("[[]POL[]]", .rqts[.r,3], .ref)
+    .ref <- gsub("[[]YEAR[]]", .rqts[.r,2], .ref)
+    if(!silent){
+      print(.ref)
+    }
+
+    .url <- readLines(.ref)
+
+    # valid years, sites and pollutants
+    .yrs <- ga_UKNAN_check(.url, "year")
+    .sts <- ga_UKNAN_check(.url, "uka_id")
+
+    .pols <- ga_UKNAN_check(.url, "pollutant")
+
+    if(is.null(.sts)){
+      if(!silent){
+        print("unknown network")
+      }
+      return(NULL)
+    }
+    if(is.null(.yrs) & is.null(.pols)){
+      if(!silent){
+        print("site not in that network?")
+        print("   valid sites:")
+        print(.sts)
+      }
+      return(NULL)
+    }
+
+    #####################
+    #checks
+    #print(.yrs)
+    #print(.pols)
+    #print(.sts)
+
+    #get site.name
+    .st.nm <- grep("\t\t\t\t\t\t\t\t<h2>", .url)
+    if(length(.st.nm)<1){
+      .st.nm <- "[UNKNOWN]"
+    } else {
+      .st.nm <- .url[.st.nm]
+      .st.nm <- gsub("\t\t\t\t\t\t\t\t<h2>|</h2>", "", .st.nm)
+    }
+    if(.st.nm %in% .sts$value){
+      .st.code <- .sts$id[.sts$value==.st.nm]
+    } else {
+      .st.code <- "[UNKNOWN]"
+    }
+
+    #get the data
+    .tbl <- .url
+    test <- grep("<table", .tbl)
+    #if tbl 0 end or more than 1 case???
+    if(length(test)==1){
+      .tbl <- .tbl[test:length(.tbl)]
+      test <- grep("</table", .tbl)
+      #if tbl 0 end or more than 1 case???
+      .tbl <- .tbl[1:test]
+      .hd <- .tbl[grep("\t\t\t\t\t\t\t<th>", .tbl)]
+      .hd <- gsub("\t\t\t\t\t\t\t\t<th>", "", .hd)
+      .hd <- gsub("</th>", "", .hd)
+      .hd #the headers
+      .d <- .tbl[grep("\t\t\t\t\t\t\t<td>", .tbl)]
+      .d <- gsub("\t\t\t\t\t\t\t<td>", "", .d)
+      .d <- gsub("</td>", "", .d)
+      .d <- gsub("<sup>", "", .d)
+      .d <- gsub("</sup>&nbsp;", "", .d)
+      .d <- gsub("<span class=\"green bold\">", "", .d)
+      .d <- gsub("</span>&nbsp;", "", .d)
+      #currently replacing measurements <x as NA...
+      .d[grepl("&lt;", .d)] <- NA
+
+      ##########################################################
+      #data.frame build
+      #########################################################
+      #makes assumptions about data dimensions
+      #might be fine
+      ##########################################################
+      if(length(.d)>5){
+        .out <- data.frame(
+          network = network_id,
+          uka_id = .st.code,
+          site = .st.nm,
+          pol_id= NA,
+          .d[seq(1, length(.d), by = length(.hd))],
+          .d[seq(2, length(.d), by = length(.hd))],
+          .d[seq(3, length(.d), by = length(.hd))],
+          .d[seq(4, length(.d), by = length(.hd))],
+          .d[seq(5, length(.d), by = length(.hd))],
+          .d[seq(6, length(.d), by = length(.hd))])
+        ########################
+        #naming
+        ########################
+        #added site code BUT
+        #could get site name from download???
+        ########################
+        #also could make data.frame names
+        names(.out) <- c("network","uka_id", "site", "pol_id", .hd)
+
+        #get pollutant.name
+        .test <- subset(.pols, id %in% .rqts[.r,3])
+        if(nrow(.test)==0){
+          .out <- NULL
+        } else {
+          .pol.id <- .test$id
+          .out$pol_id <- .pol.id
+          .out <- subset(.out, grepl(make.names(tolower(.test$value)),
+                                     make.names(tolower(Pollutant))))
+        }
+      } else {
+        .out <- NULL
+      }
+
+      ########################
+      #reformatting
+      ########################
+      #could do this in import wrapper
+      #might speed things up a little
+      if(is.null(.out) || nrow(.out)<1){
+        .out <- NULL
+      } else {
+        .out$`Start Date` <- as.Date(.out$`Start Date`,
+                                     tryFormats = c("%d/%m/%Y", "%Y-%m-%d", "%Y/%m/%d"))
+        .out$`End Date` <- as.Date(.out$`End Date`,
+                                   tryFormats = c("%d/%m/%Y", "%Y-%m-%d", "%Y/%m/%d"))
+        .out$Measurement <- as.numeric(.out$Measurement)
+        .out
+      }
+    } else {
+      .out <- NULL
+    }
+
+    if(!silent){
+      print("sites")
+      print(.sts)
+      print("years")
+      print(.yrs)
+      print("pollutants")
+      print(.pols)
+      print(.ref)
+    }
+    .out
+  })
+  .out <- do.call(rbind, .ans)
+
+  return(.out)
+
+}
+
+
+# unexported workhorse function
+
+ga_UKNAN_check <- function(.url, target){
+  .ref <- "class=\"form-control\" name=\"[TAR]\""
+  .ref <- gsub("[[]TAR[]]", target, .ref)
+  .x1 <- grep(.ref, .url)
+  if(length(.x1)==1){
+    .pols <- .url[(.x1+1):length(.url)]
+    .x1 <- which(.pols=="")
+    .pols <- .pols[1:(.x1[1]-1)]
+    .pols <- gsub("<option value=\"|</option>|\" selected=\"selected", "", .pols)
+    #.pols <- gsub("<option value=\"|</option>", "", .pols)
+    #was planning to used the selected to identify which select BUT
+    #it does not seem
+    .pols <- lapply(strsplit(.pols, "\">"), function(x){
+      data.frame(id=x[1], value=x[2])
+    })
+    .pols <- do.call(rbind, .pols)
+    if(all(is.na(.pols))){
+      .pols <- NULL
+    }
+  } else {
+    .pols <-NULL
+  }
+  .pols
+}
+
+
 
 
 
@@ -82,13 +375,16 @@
 #  sites <- "UKA00315"
 #  pols <- c(1032, 1033, 1034, 1055, 262, 356, 263, 1035, 1036, 1378, 1038, 264)
 #  years <- 2011:2022
-#  out <- importUKNAMetals(site, pols, years)
+#  out <- importUKNAMetals(sites, pols, years)
 #  saveRDS(out, "uk.metals.1.rds")
 
 #' @rdname data.import
 #' @export
 
-importUKNAMetals <- function(site, pollutant, year, ...){
+importUKNAMetals <- function(uka_id, pollutant_id, year, ...){
+  site <- uka_id
+  pollutant <- pollutant_id
+
   #wrapper for unexported getUKNANMetal
   .sites <- lapply(site, function(s){
     .pols <- lapply(pollutant, function(p){
@@ -331,7 +627,12 @@ getUKNANMetal <- function(site, pollutant, year, ...){
 #' @rdname data.import
 #' @export
 
-importUKNAPAHs <- function(site, pollutant, year, ...){
+importUKNAPAHs <- function(uka_id, pollutant_id, year, ...){
+
+  #temp fix with updating
+  site <- uka_id
+  pollutant <- pollutant_id
+
   #wrapper for getUKNANPAH
   .sites <- lapply(site, function(s){
     .pols <- lapply(pollutant, function(p){
@@ -420,11 +721,6 @@ getUKNANPAH <- function(site, pollutant, year, ...){
 
   .out
 }
-
-
-
-
-
 
 
 
