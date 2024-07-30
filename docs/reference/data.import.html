@@ -43,9 +43,11 @@ archives.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">importUKNAN</span><span class="op">(</span><span class="va">network_id</span>, <span class="va">uka_id</span>, <span class="va">pollutant_id</span>, <span class="va">year</span>, <span class="va">...</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">importUKNAMetals</span><span class="op">(</span><span class="va">uka_id</span>, <span class="va">pollutant_id</span>, <span class="va">year</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">importUKNAMetals</span><span class="op">(</span><span class="va">uka_id</span>, <span class="va">pollutant_id</span>, <span class="va">year</span>, <span class="va">...</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">importUKNAPAHs</span><span class="op">(</span><span class="va">uka_id</span>, <span class="va">pollutant_id</span>, <span class="va">year</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">importUKNAPAHs</span><span class="op">(</span><span class="va">uka_id</span>, <span class="va">pollutant_id</span>, <span class="va">year</span>, <span class="va">...</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">importUKNAHCs</span><span class="op">(</span><span class="va">uka_id</span>, <span class="va">pollutant_id</span>, <span class="va">year</span>, <span class="va">...</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -76,7 +78,7 @@ pollutant(s) to download data for.</p></dd>
 
 
 <dt id="arg-silent">silent<a class="anchor" aria-label="anchor" href="#arg-silent"></a></dt>
-<dd><p>(<code>importUKNAN</code> only; logical) Return data silently? If
+<dd><p>(logical) Return data silently? If
 <code>TRUE</code> (default) a <code>NULL</code> is returned without warning if the
 requested data is not available; if <code>FALSE</code>, options are suggested.</p></dd>
 
@@ -102,6 +104,10 @@ details and source information.</p>
 Non-automatic Polycyclic Aromatic Hydrocarbons (PAH) Network.</p>
 <p>see https://uk-air.defra.gov.uk/networks/network-info?view=pah for details
 and source information.</p>
+<p><code>importUKNAHCs</code>: import function for metal data from the UK
+Non-automatic Hydrocarbon Network.</p>
+<p>see https://uk-air.defra.gov.uk/networks/network-info?view=nahc for details
+and source information.</p>
     </div>
     <div class="section level2">
     <h2 id="note">Note<a class="anchor" aria-label="anchor" href="#note"></a></h2>
@@ -113,7 +119,7 @@ So:</p>
 for each function), and</p>
 <p>(b) You should be aware that they only work for as long as the structure
 of the data in the archive remains as it was when the code was written,
-and neither I or your have any control in that...</p>
+and neither I or you have any control in that...</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
