@@ -5,13 +5,16 @@
 \alias{importUKNAN}
 \alias{importUKNAMetals}
 \alias{importUKNAPAHs}
+\alias{importUKNAHCs}
 \title{Data import functions}
 \usage{
 importUKNAN(network_id, uka_id, pollutant_id, year, ..., silent = TRUE)
 
-importUKNAMetals(uka_id, pollutant_id, year, ...)
+importUKNAMetals(uka_id, pollutant_id, year, ..., silent = TRUE)
 
-importUKNAPAHs(uka_id, pollutant_id, year, ...)
+importUKNAPAHs(uka_id, pollutant_id, year, ..., silent = TRUE)
+
+importUKNAHCs(uka_id, pollutant_id, year, ..., silent = TRUE)
 }
 \arguments{
 \item{network_id}{(\code{importUKNAN} only; character) The identifier
@@ -27,7 +30,7 @@ pollutant(s) to download data for.}
 
 \item{...}{(other arguments) currently ignored.}
 
-\item{silent}{(\code{importUKNAN} only; logical) Return data silently? If
+\item{silent}{(logical) Return data silently? If
 \code{TRUE} (default) a \code{NULL} is returned without warning if the
 requested data is not available; if \code{FALSE}, options are suggested.}
 }
@@ -57,6 +60,12 @@ Non-automatic Polycyclic Aromatic Hydrocarbons (PAH) Network.
 
 see https://uk-air.defra.gov.uk/networks/network-info?view=pah for details
 and source information.
+
+\code{importUKNAHCs}: import function for metal data from the UK
+Non-automatic Hydrocarbon Network.
+
+see https://uk-air.defra.gov.uk/networks/network-info?view=nahc for details
+and source information.
 }
 \description{
 Some functions to import data from held in on-line data
@@ -73,5 +82,5 @@ for each function), and
 
 (b) You should be aware that they only work for as long as the structure
 of the data in the archive remains as it was when the code was written,
-and neither I or your have any control in that...
+and neither I or you have any control in that...
 }
