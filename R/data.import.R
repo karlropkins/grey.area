@@ -17,7 +17,8 @@
 #' @param ... (other arguments) currently ignored.
 #' @param silent (logical) Return data silently? If
 #' \code{TRUE} (default) a \code{NULL} is returned without warning if the
-#' requested data is not available; if \code{FALSE}, options are suggested.
+#' requested data is not available; if \code{FALSE}, options are suggested
+#' when returning a \code{NULL}.
 
 #' @return The import functions typically return the request data as a
 #' \code{data.frame} if data is available for requested site/pollutant/year
@@ -57,14 +58,26 @@
 ##############################
 
 # need to decide how to document (and/or handle ??) site and pollutant
-#        identifiers currently remarked in function...
+#     identifiers currently remarked in olde versions of functions...
+#         currently if silent = FALSE, it lists 'valid' options
+#             (but not all combinations are valid)
+#             (also this is messy if you use it with a multiple
+#              site/pollutant/year call...)
+
+# should we set defaults
+#     openair import functions do
+
+# could we make a importMeta/getMeta like function?
 
 # these could probably be faster
-#        options to speed up ???
+#     options to speed up ???
+#         suspect data.table should speed this up
+#              (based on experience with respeciate...)
 
-# include the tidy PAHs code from
-#       ~pkg/respeciate/_projects/marylebone03/_marylebone_data_builds_03.Rmd
-#
+# adding authors to documents
+#     me and Tobey?
+
+# active the html in documentation
 
 #' @note These functions were developed while working on projects that
 #' required multiple downloads of data from these sources. The code is
@@ -349,7 +362,9 @@ importUKNAN <- function(network_id, uka_id, pollutant_id, year,
     .out
   })
 
+  #replacing with rbindlist
   #.out <- do.call(rbind, .ans)
+  #does rbindlist want to be use.names=TRUE as well??
   .out <- data.table::rbindlist(.ans, fill = TRUE)
   .out <- as.data.frame(.out)
   if(nrow(.out)<1){
@@ -805,4 +820,207 @@ getUKNANPAH <- function(site, pollutant, year, ...){
 }
 
 
+
+
+import_test <- function(network_id, uka_id, pollutant_id, year,
+                        ..., silent = TRUE){
+
+  #set up
+  ###################
+  .ref0 <- "https://uk-air.defra.gov.uk/data/non-auto-data?uka_id=[SITE]&view=data&network=[NET]&year=[YEAR]&pollutant=[POL]#"
+  #only currently letting you have one network at time
+  if(length(network_id)!=1){
+    stop("IMPORT> sorry only one network at a time!",
+         call. = FALSE)
+  }
+  .ref0 <- gsub("[[]NET[]]", network_id, .ref0)
+  .args <- list(...)
+
+  #build request matrix
+  .rqts <- expand.grid(uka_id, year, pollutant_id)
+  #print(.rqts)
+
+  #do all requests...
+  .ans <- lapply(1:nrow(.rqts), function(.r){
+
+    #1 or more site, pollutant and year
+    #only tested for pollutant and year so far...
+    .ref <- gsub("[[]SITE[]]", .rqts[.r,1], .ref0)
+    .ref <- gsub("[[]POL[]]", .rqts[.r,3], .ref)
+    .ref <- gsub("[[]YEAR[]]", .rqts[.r,2], .ref)
+    if(!silent){
+      print(.ref)
+    }
+
+    .url <- readLines(.ref)
+    return(data.frame())
+
+    # valid years, sites and pollutants
+    .yrs <- ga_UKNAN_check(.url, "year")
+    .sts <- ga_UKNAN_check(.url, "uka_id")
+    #.pols <- ga_UKNAN_check(.url, "pollutant")
+    ############################
+    #testing passing .pols via importUKNAN
+    #for importUKNAHC...
+    .pols <- if(".pols" %in% names(.args)){
+      .args$.pols
+    } else {
+      ga_UKNAN_check(.url, "pollutant")
+    }
+    ############################
+
+
+    if(is.null(.sts)){
+      if(!silent){
+        print("unknown network")
+      }
+      return(NULL)
+    }
+    if(is.null(.yrs) & is.null(.pols)){
+      if(!silent){
+        print("site not in that network?")
+        print("   valid sites:")
+        print(.sts)
+      }
+      return(NULL)
+    }
+
+    #####################
+    #checks
+    #print(.yrs)
+    #print(.pols)
+    #print(.sts)
+
+    #get site.name
+    .st.nm <- grep("\t\t\t\t\t\t\t\t<h2>", .url)
+    if(length(.st.nm)<1){
+      .st.nm <- "[UNKNOWN]"
+    } else {
+      .st.nm <- .url[.st.nm]
+      .st.nm <- gsub("\t\t\t\t\t\t\t\t<h2>|</h2>", "", .st.nm)
+    }
+    if(.st.nm %in% .sts$value){
+      .st.code <- .sts$id[.sts$value==.st.nm]
+    } else {
+      .st.code <- "[UNKNOWN]"
+    }
+
+    #get the data
+    .tbl <- .url
+    test <- grep("<table", .tbl)
+    #if tbl 0 end or more than 1 case???
+    if(length(test)==1){
+      .tbl <- .tbl[test:length(.tbl)]
+      test <- grep("</table", .tbl)
+      #if tbl 0 end or more than 1 case???
+      .tbl <- .tbl[1:test]
+      .hd <- .tbl[grep("\t\t\t\t\t\t\t<th>", .tbl)]
+      .hd <- gsub("\t\t\t\t\t\t\t\t<th>", "", .hd)
+      .hd <- gsub("</th>", "", .hd)
+      .hd #the headers
+      .d <- .tbl[grep("\t\t\t\t\t\t\t<td>", .tbl)]
+      .d <- gsub("\t\t\t\t\t\t\t<td>", "", .d)
+      .d <- gsub("</td>", "", .d)
+      .d <- gsub("<sup>", "", .d)
+      .d <- gsub("</sup>&nbsp;", "", .d)
+      .d <- gsub("<span class=\"green bold\">", "", .d)
+      .d <- gsub("</span>&nbsp;", "", .d)
+      #currently resetting &micro; to u
+      .d <- gsub("&micro;", "u", .d)
+      #currently replacing measurements <x as NA...
+      .d[grepl("&lt;", .d)] <- NA
+
+      ##########################################################
+      #data.frame build
+      #########################################################
+      #makes assumptions about data dimensions
+      #might be fine
+      ##########################################################
+      if(length(.d)>5){
+        .out <- data.frame(
+          network = network_id,
+          uka_id = .st.code,
+          site = .st.nm,
+          pol_id= NA,
+          .d[seq(1, length(.d), by = length(.hd))],
+          .d[seq(2, length(.d), by = length(.hd))],
+          .d[seq(3, length(.d), by = length(.hd))],
+          .d[seq(4, length(.d), by = length(.hd))],
+          .d[seq(5, length(.d), by = length(.hd))],
+          .d[seq(6, length(.d), by = length(.hd))])
+        ########################
+        #naming
+        ########################
+        #added site code BUT
+        #could get site name from download???
+        ########################
+        #also could make data.frame names
+        names(.out) <- c("network","uka_id", "site", "pol_id", .hd)
+
+        #get pollutant.name
+        .test <- subset(.pols, id %in% .rqts[.r,3])
+        if(nrow(.test)==0){
+          .out <- NULL
+        } else {
+          .pol.id <- .test$id
+          .out$pol_id <- .pol.id
+          #test for valid pollutant
+          .out <- subset(.out, grepl(make.names(tolower(.test$value)),
+                                     make.names(tolower(Pollutant))))
+          #test for valid date
+          #this treats year=200 as valid
+          #.out <- .out[grepl(as.character(.rqts[.r,2]), paste(.out$`Start Date`, .out$`End Date`)),]
+        }
+      } else {
+        .out <- NULL
+      }
+
+      ########################
+      #reformatting
+      ########################
+      #could do this in import wrapper
+      #might speed things up a little
+      if(is.null(.out) || nrow(.out)<1){
+        .out <- NULL
+      } else {
+        .out$`Start Date` <- as.Date(.out$`Start Date`,
+                                     tryFormats = c("%d/%m/%Y", "%Y-%m-%d", "%Y/%m/%d"))
+        .out$`End Date` <- as.Date(.out$`End Date`,
+                                   tryFormats = c("%d/%m/%Y", "%Y-%m-%d", "%Y/%m/%d"))
+        .out$Measurement <- as.numeric(.out$Measurement)
+        #test years are valid
+        if(all(format(.out$`Start Date`, "%Y")==as.character(.rqts[.r,2]) |
+               format(.out$`End Date`, "%Y")==as.character(.rqts[.r,2]))){
+          .out <- .out
+        } else {
+          .out <- NULL
+        }
+      }
+    } else {
+      .out <- NULL
+    }
+
+    if(!silent){
+      print("sites")
+      print(.sts)
+      print("years")
+      print(.yrs)
+      print("pollutants")
+      print(.pols)
+      print(.ref)
+    }
+    .out
+  })
+
+  #replacing with rbindlist
+  #.out <- do.call(rbind, .ans)
+  #does rbindlist want to be use.names=TRUE as well??
+  .out <- data.table::rbindlist(.ans, fill = TRUE)
+  .out <- as.data.frame(.out)
+  if(nrow(.out)<1){
+    NULL
+  } else {
+    .out
+  }
+}
 
