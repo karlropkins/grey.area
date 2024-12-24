@@ -19,10 +19,11 @@
 #' item (e.g. function) being added to package.
 #' @param data (character) name of data to add to package.
 #' @param date (character) date in 'YYYY-MM_DD' format.
-#' @param version (character) version in 'n.n.n' format.
-#' @param increase (character or numeric) version increase, either
-#' '1', '0.1' or '0.0.1' or 1, 2, or 3 from first, second or third
-#' level version increase.
+#' @param version (character) version in 'n.n.n' (or 'n.n.n.n') format.
+#' @param increase (character or numeric) version increase, typically
+#' character in 'n.n.n' (or 'n.n.n.n') format, but also allows the
+#' numerics 1, 2, 3 or 4 as shorthand for increases of '1', '0.1',
+#' '0.0.1' or '0.0.0.1', respectively.
 #' @param ... Other arguments passed on.
 #'
 
@@ -149,9 +150,10 @@ splat_citation <-
   test_splat_path("CITATION", c(.pkg$path, "inst"), overwrite = overwrite,
                   ...)
   pkg <- .pkg$package
-  title <- if (length(grep(pkg, .pkg$title)) > 0)
-    .pkg$title
-  else paste(pkg, ": ", .pkg$title, sep = "")
+  #title <- if (length(grep(pkg, .pkg$title)) > 0)
+  #  .pkg$title
+  #else paste(pkg, ": ", .pkg$title, sep = "")
+  title <- .pkg$title
   #year <- if ("date" %in% names(.pkg))
   #  format(as.Date(.pkg$date), "%Y")
   #else format(Sys.Date(), "%Y")
@@ -210,16 +212,19 @@ splat_package_intro <- function (name = ".", pkg = ".", overwrite = FALSE,
   #make content
   pkg.name <- pkg$package
   if(title == ".") title <- pkg$title
+  title2 <- paste(pkg.name, title, sep=": ")
   if(description == ".") description <- pkg$description
   out <- c("##################################################",
-           strwrap(title, prefix = "#' "),
+           strwrap(title2, prefix = "#' "),
            "##################################################",
            "#'",
            strwrap(description, prefix = "#' "),
            "#'", "#' This package was splat packed.", "#'",
            "#' @section package functions:",
-           "#' [to be added]", "#'", "#' @docType package",
-           paste("#' @name ", pkg.name, sep=""), "NULL")
+           "#' [to be added]", "#'",
+           paste("#' @name ", pkg.name, "-package", sep=""),
+           paste("#' @aliases ", pkg.name, sep=""),
+           "#' \"_PACKAGE\"", "NULL")
   destination <- file.path(file.path(file.path(pkg$path, "R"),
                            paste(name, ".R", sep="")))
   write_splat_content(destination, out)
@@ -565,8 +570,9 @@ splat_version <- function (title = ".", version = ".", increase = ".",
   #set date in splat_package
   #might be issue with rewrite at end...
 
+  #odd but OK!!
   if(is.numeric(increase)){
-    increase <- c("1", "0.1", "0.0.1")[increase[1]]
+    increase <- c("1", "0.1", "0.0.1", "0.0.0.1")[increase[1]]
     if(length(increase)<1 || is.na(increase)){
       stop("Halted splat: increase suspect",
            call. = FALSE)
@@ -579,6 +585,7 @@ splat_version <- function (title = ".", version = ".", increase = ".",
 
   #get pkg...
   pkg <- package_splat_source(pkg)
+
   #looking for [pkg]/description
   #don't use test_splat_path because it deletes...
   if(!file.exists(file.path(pkg$path, "DESCRIPTION")))
@@ -596,29 +603,39 @@ splat_version <- function (title = ".", version = ".", increase = ".",
   #NOTE at moment date is not
   #doing anything in this function
   #####################################
-  #update date in description
+  #update version in description
+
   if("Version" %in% colnames(desc)){
     if(version != "."){
+      #check it looks sensible
+      temp <- try(as.numeric(strsplit(version, "[.]")[[1]]),
+                  silent = TRUE)
+      if(class(temp)[1] == "try-error"){
+        stop("Halted splat: supplied version suspect [expected 'n.n.n(.n)']",
+             call. = FALSE)
+      }
       desc[colnames(desc)=="Version"] <- version
     } else {
       temp <- try(as.numeric(strsplit(desc[, "Version"], "[.]")[[1]]),
                   silent = TRUE)
       if(class(temp)[1] == "try-error"){
-        stop("Halted splat: description version suspect [expect 'n.n.n']",
+        stop("Halted splat: description version suspect [expect 'n.n.n(.n)']",
              call. = FALSE)
       }
-      if(increase == "1"){
-        temp[1] <- temp[1] + 1
-        temp[2:3] <- 0
-        #not 2:length(temp) because that would
-        #   rest .9000 (developer)...
+      inc <- try(as.numeric(strsplit(increase, "[.]")[[1]]),
+                 silent = TRUE)
+      if(class(inc)[1] == "try-error"){
+        stop("Halted splat: supplied increase suspect [expect 'n.n.n(.n)']",
+             call. = FALSE)
       }
-      if(increase == "0.1"){
-        temp[2] <- temp[2] + 1
-        temp[3] <- 0
+      if(length(inc)>length(temp)){
+        temp <- c(temp, rep(0, length(inc)))[1:length(inc)]
       }
-      if(increase == "0.0.1"){
-        temp[3] <- temp[3] + 1
+      for(i in 1:length(inc)){
+        temp[i] <- temp[i] + inc[i]
+        if(inc[i]>0 & length(temp)>i){
+          temp[(i+1):length(temp)] <- 0
+        }
       }
       temp <- paste(temp, sep = ".", collapse = ".")
       desc[colnames(desc)=="Version"] <- temp
@@ -631,6 +648,7 @@ splat_version <- function (title = ".", version = ".", increase = ".",
     desc <- cbind(desc, version)
     colnames(desc)[length(desc)] <- "Version"
   }
+
   #order description
   desc <- order_splat_description(desc)
   #write that back...b

@@ -1,22 +1,17 @@
 Package: grey.area
 Title: This is a bit of a grey area
-Version: 0.0.18
-Date: 2024-07-28
-Description: This is a bit of a grey area. This is an in-house R package not intended for
-          unlimited redistribution. Please contact Karl Ropkins for details.
-Authors@R: c(person(given = "Karl", family = "Ropkins", role = c("aut", "cre"), email =
-          "k.ropkins@its.leeds.ac.uk", comment = c(ORCID = "0000-0002-0294-6997")))
+Version: 0.0.19
+Date: 2024-12-24
+Description: This is a bit of a grey area. This is an in-house R package not intended
+         for unlimited redistribution. Please contact Karl Ropkins for details.
+Authors@R: c(person(given = "Karl", family = "Ropkins", role = c("aut", "cre"), email
+         = "k.ropkins@its.leeds.ac.uk", comment = c(ORCID = "0000-0002-0294-6997")))
 Depends: R (>= 3.5.1)
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.2
-Imports: 
-    data.table,
-    devtools,
-    dplyr,
-    methods,
-    sf,
-    usethis
-URL: https://github.com/karlropkins/grey.area, https://karlropkins.github.io/grey.area/
+Imports: data.table, devtools, dplyr, methods, sf, usethis
+URL: https://github.com/karlropkins/grey.area,
+         https://karlropkins.github.io/grey.area/
 BugReports: https://github.com/karlropkins/grey.area/issues

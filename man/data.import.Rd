@@ -32,7 +32,8 @@ pollutant(s) to download data for.}
 
 \item{silent}{(logical) Return data silently? If
 \code{TRUE} (default) a \code{NULL} is returned without warning if the
-requested data is not available; if \code{FALSE}, options are suggested.}
+requested data is not available; if \code{FALSE}, options are suggested
+when returning a \code{NULL}.}
 }
 \value{
 The import functions typically return the request data as a

@@ -1,11 +1,15 @@
 # Version 0.0 - Release Notes
 
+* [0.0.19]
+    * update to splat functions [2024-10-30] 
+    * update to splat_version [2024-12-23]
+
 * [0.0.18]
     * added importUKNAMetals and importUKNAPAHs [2024-06-25] 
     * added importUKNAN [2024-07-28]  
     * package now uses data.table for data.import functions [2024-07-30] 
     * added importUKNHCs [2024-07-30]
-    * website update [2024-07-30]
+    * website update [2024-07-30] 
 
 * [0.0.17]
     * added news and rebuilt website [2023-03-07]

@@ -101,11 +101,12 @@ item (e.g. function) being added to package.}
 
 \item{date}{(character) date in 'YYYY-MM_DD' format.}
 
-\item{version}{(character) version in 'n.n.n' format.}
+\item{version}{(character) version in 'n.n.n' (or 'n.n.n.n') format.}
 
-\item{increase}{(character or numeric) version increase, either
-'1', '0.1' or '0.0.1' or 1, 2, or 3 from first, second or third
-level version increase.}
+\item{increase}{(character or numeric) version increase, typically
+character in 'n.n.n' (or 'n.n.n.n') format, but also allows the
+numerics 1, 2, 3 or 4 as shorthand for increases of '1', '0.1',
+'0.0.1' or '0.0.0.1', respectively.}
 }
 \description{
 Code written when making packages.
